@@ -136,6 +136,7 @@ func call(w http.ResponseWriter, r *http.Request) {
 		err := json.Unmarshal(bodyBytes, &data)
 		if err == nil {
 			fmt.Println(data["sid"])
+			fmt.Println(data)
 		}
 	} else {
 		fmt.Println(resp.Status)
