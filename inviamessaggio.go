@@ -141,7 +141,7 @@ func call(w http.ResponseWriter, r *http.Request) {
 
 			fmt.Println(data)
 		}
-		time.Sleep(30 * time.Second)
+		time.Sleep(5 * time.Second)
 
 		//Prepara richiesta per estrazione dati ultima call
 		callsid := fmt.Sprintf("https://api.twilio.com/2010-04-01/Accounts/AC61555d64628166011c8c5776a3be957e/Calls/" + data["sid"].(string))
