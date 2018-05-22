@@ -14,7 +14,7 @@ import (
 )
 
 //Santa Palomba
-var twimlurl = "https://handler.twilio.com/twiml/EH5cef42aa1454fc2326780c8f08c6d568"
+var twimlurl = "http://104.40.155.230:3000/twiml"
 
 //var twimlurl = "https://handler.twilio.com/twiml/EHf9986fbef2c724000473a181c2de9864"
 
