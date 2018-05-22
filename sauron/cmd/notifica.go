@@ -16,7 +16,11 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/axamon/sms"
+
+	"github.com/axamon/reperibili"
 	"github.com/spf13/cobra"
 )
 
@@ -31,7 +35,24 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("notifica called")
+		f := cmd.Flag("f").Value.String()
+		//fmt.Println(f)
+		if len(args[0]) > 3 {
+			fmt.Println("Argomento superiore a 3 lettere a che piattaforma ti riferisci?")
+			os.Exit(1)
+		}
+		contatto, err := reperibili.Reperibiliperpiattaforma2(args[0], f)
+
+		if err != nil {
+			fmt.Println("errore", err.Error())
+			//os.Exit(1)
+		}
+		fmt.Println(contatto.Cellulare)
+
+		testo := fmt.Sprintf("%s sarai reperibile il giorno %s per %s ", contatto.Nome, contatto.Assegnazione.Giorno, contatto.Assegnazione.Piattaforma)
+		sms.Inviasms(contatto.Cellulare, "+17372041296", testo)
+
+		//fmt.Println("notifica called")
 	},
 }
 

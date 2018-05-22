@@ -39,11 +39,20 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/twiml", twimlfunc)
+	r.HandleFunc("/status", poststatus).Methods("POST")
 	//Il parametro passato dopo call deve essere un cellulare italiano nel formato +39xxxxxxxxxx
 	//Se non è ben formattato allora restituisce un 404
 	r.HandleFunc("/call/{TO:\\+39\\d{10}}", call)
 	http.Handle("/", r)
 	http.ListenAndServe(":3000", nil)
+}
+
+func poststatus(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var res interface{}
+	b, _ := ioutil.ReadAll(r.Body)
+	json.Unmarshal(b, &res)
+	fmt.Println(res)
 }
 
 //deve far vedere il file XML che voglio io
@@ -98,9 +107,9 @@ func call(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	// Build out the data for our message
 	v := url.Values{}
-        v.Set("status_callback", "http://www.myapp.com/events")
-        v.Set("status_callback_event", "initiated")
-        v.Set("status_callback_method", "POST")
+	v.Set("status_callback", "http://sauron1.westeurope.cloudapp.azure.com:3000/status")
+	v.Set("status_callback_event", "initiated")
+	v.Set("status_callback_method", "POST")
 	v.Set("To", vars["TO"])
 	v.Set("From", twilionumber)
 	//Sfortunatamente la URL deve essere Pubblica se no twilio non può arrivarci
