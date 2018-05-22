@@ -14,7 +14,7 @@ import (
 )
 
 //Santa Palomba
-var twimlurl = "http://104.40.155.230:3000/twiml"
+var twimlurl = "http://sauron1.westeurope.cloudapp.azure.com:3000/twiml"
 
 //var twimlurl = "https://handler.twilio.com/twiml/EHf9986fbef2c724000473a181c2de9864"
 
@@ -98,6 +98,9 @@ func call(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	// Build out the data for our message
 	v := url.Values{}
+        v.Set("status_callback", "http://www.myapp.com/events")
+        v.Set("status_callback_event", "initiated")
+        v.Set("status_callback_method", "POST")
 	v.Set("To", vars["TO"])
 	v.Set("From", twilionumber)
 	//Sfortunatamente la URL deve essere Pubblica se no twilio non può arrivarci
