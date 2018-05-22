@@ -144,11 +144,11 @@ func call(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(5 * time.Second)
 
 		//Prepara richiesta per estrazione dati ultima call
-		callsid := fmt.Sprintf("https://api.twilio.com/2010-04-01/Accounts/AC61555d64628166011c8c5776a3be957e/Calls/" + data["sid"].(string))
-		req, err := http.NewRequest("GET", callsid, &rb)
+		callsid := fmt.Sprintf("https://api.twilio.com/2010-04-01/Accounts/" + accountSid + "/Calls/" + data["sid"].(string))
+		req, err := http.NewRequest("GET", callsid, nil)
 		req.SetBasicAuth(accountSid, authToken)
-		req.Header.Add("Accept", "application/json")
-		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		//req.Header.Add("Accept", "application/json")
+		//req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		resp, err := client.Do(req)
 		if err != nil {
 			fmt.Println("errore", err.Error())
