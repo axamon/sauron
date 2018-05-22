@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -119,6 +120,7 @@ func call(w http.ResponseWriter, r *http.Request) {
 	// Create Client
 	client := &http.Client{}
 
+	//Prepara la richiesta HTTP
 	req, _ := http.NewRequest("POST", urlStr, &rb)
 	req.SetBasicAuth(accountSid, authToken)
 	req.Header.Add("Accept", "application/json")
@@ -136,10 +138,35 @@ func call(w http.ResponseWriter, r *http.Request) {
 		err := json.Unmarshal(bodyBytes, &data)
 		if err == nil {
 			fmt.Println(data["sid"])
+
 			fmt.Println(data)
 		}
-	} else {
-		fmt.Println(resp.Status)
-		w.Write([]byte("Grosso guaio a ChinaTown"))
+		time.Sleep(30 * time.Second)
+
+		//Prepara richiesta per estrazione dati ultima call
+		callsid := fmt.Sprintf("https://api.twilio.com/2010-04-01/Accounts/AC61555d64628166011c8c5776a3be957e/Calls/" + data["sid"].(string))
+		req, err := http.NewRequest("GET", callsid, &rb)
+		req.SetBasicAuth(accountSid, authToken)
+		req.Header.Add("Accept", "application/json")
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		resp, err := client.Do(req)
+		if err != nil {
+			fmt.Println("errore", err.Error())
+			os.Exit(501)
+		}
+		if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+			var data map[string]interface{}
+			bodyBytes, _ := ioutil.ReadAll(resp.Body)
+			err := json.Unmarshal(bodyBytes, &data)
+			if err == nil {
+				fmt.Println(data["status"])
+
+				fmt.Println(data)
+			}
+
+		} else {
+			fmt.Println(resp.Status)
+			w.Write([]byte("Grosso guaio a ChinaTown"))
+		}
 	}
 }
