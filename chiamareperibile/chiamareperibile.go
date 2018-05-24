@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 func recuperavariabile(variabile string) (result string, err error) {
@@ -27,6 +30,71 @@ func main() {
 
 	fmt.Println(sid)
 
+}
+
+func call(w http.ResponseWriter, r *http.Request) {
+
+	twilionumber, err := recuperavariabile("TWILIONUMBER")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(100)
+	}
+	// Let's set some initial default variables
+
+	//Recupera l'accountsid di Twilio dallla variabile d'ambiente
+	accountSid, err := recuperavariabile("TWILIOACCOUNTSID")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(101)
+	}
+
+	//Recupera il token supersegreto dalla variabile d'ambiente
+	authToken, err := recuperavariabile("TWILIOAUTHTOKEN")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(102)
+	}
+
+	urlStr := "https://api.twilio.com/2010-04-01/Accounts/" + accountSid + "/Calls.json"
+	vars := mux.Vars(r)
+	// Build out the data for our message
+	v := url.Values{}
+	//v.Set("status_callback", "http://sauron1.westeurope.cloudapp.azure.com:3000/status")
+	//v.Set("status_callback_event", "initiated")
+	v.Set("status_callback_method", "POST")
+	v.Set("To", vars["TO"])
+	v.Set("NOME", "Gringo")
+	v.Set("From", twilionumber)
+	//Sfortunatamente la URL deve essere Pubblica se no twilio non può arrivarci
+	v.Set("Url", "https://handler.twilio.com/twiml/EH5cef42aa1454fc2326780c8f08c6d568")
+	rb := *strings.NewReader(v.Encode())
+
+	// Create Client
+	client := &http.Client{}
+
+	//Prepara la richiesta HTTP
+	req, _ := http.NewRequest("POST", urlStr, &rb)
+	req.SetBasicAuth(accountSid, authToken)
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	// make request
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("errore", err.Error())
+		os.Exit(500)
+	}
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		var data map[string]interface{}
+		bodyBytes, _ := ioutil.ReadAll(resp.Body)
+		err := json.Unmarshal(bodyBytes, &data)
+		if err == nil {
+			fmt.Println(data["sid"])
+
+			fmt.Println(data)
+		}
+
+	}
 }
 
 //Chiamareperibile e comunica il problema

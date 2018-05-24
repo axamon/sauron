@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/axamon/reperibili"
+
 	"github.com/hpcloud/tail"
 )
 
@@ -39,6 +41,13 @@ func main() {
 
 		case true:
 			fmt.Println(line.Text)
+			reperibile, _ := reperibili.Reperibiliperpiattaforma2("CDN", "reperibilita.csv")
+
+			TO := reperibile.Cellulare
+			NOME := reperibile.Nome
+
+			reperibili.Chiamareperibile(TO, NOME)
+
 		default:
 			//fmt.Println("debug")
 			continue
