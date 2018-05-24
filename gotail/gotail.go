@@ -54,6 +54,9 @@ func main() {
 
 			reperibili.Chiamareperibile(TO, NOME)
 
+			//esce dallo switch
+			break
+
 		case strings.Contains(line.Text, "NOTIFICATION") && strings.Contains(line.Text, "OK"):
 			//Se ok allora manda solo sms niente chiamata
 			fmt.Println("ricevuto OK")
@@ -64,10 +67,13 @@ func main() {
 			messaggio := "Su " + pezzi[1] + " servizio " + pezzi[2] + " " + pezzi[3]
 
 			go sms.Inviasms(TO, messaggio)
+			//esce dallo switch
+			break
 
 		default:
 			//fmt.Println("debug")
-			continue
+			//esce dallo switch
+			break
 		}
 	}
 }
