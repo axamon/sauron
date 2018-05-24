@@ -1,4 +1,4 @@
-package main
+package inviamessaggio
 
 import (
 	"encoding/json"
@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -141,32 +140,33 @@ func call(w http.ResponseWriter, r *http.Request) {
 
 			fmt.Println(data)
 		}
-		time.Sleep(5 * time.Second)
+		/* time.Sleep(5 * time.Second)
 
-		//Prepara richiesta per estrazione dati ultima call
-		callsid := fmt.Sprintf("https://api.twilio.com/2010-04-01/Accounts/" + accountSid + "/Calls/" + data["sid"].(string))
-		req, err := http.NewRequest("GET", callsid, nil)
-		req.SetBasicAuth(accountSid, authToken)
-		//req.Header.Add("Accept", "application/json")
-		//req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-		resp, err := client.Do(req)
-		if err != nil {
-			fmt.Println("errore", err.Error())
-			os.Exit(501)
-		}
-		if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-			var data map[string]interface{}
-			bodyBytes, _ := ioutil.ReadAll(resp.Body)
-			err := json.Unmarshal(bodyBytes, &data)
-			if err == nil {
-				fmt.Println(data["status"])
-
-				fmt.Println(data)
+			//Prepara richiesta per estrazione dati ultima call
+			callsid := fmt.Sprintf("https://api.twilio.com/2010-04-01/Accounts/" + accountSid + "/Calls/" + data["sid"].(string))
+			req, err := http.NewRequest("GET", callsid, nil)
+			req.SetBasicAuth(accountSid, authToken)
+			//req.Header.Add("Accept", "application/json")
+			//req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+			resp, err := client.Do(req)
+			if err != nil {
+				fmt.Println("errore", err.Error())
+				os.Exit(501)
 			}
+			if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+				var data map[string]interface{}
+				bodyBytes, _ := ioutil.ReadAll(resp.Body)
+				err := json.Unmarshal(bodyBytes, &data)
+				if err == nil {
+					fmt.Println(data["status"])
 
-		} else {
-			fmt.Println(resp.Status)
-			w.Write([]byte("Grosso guaio a ChinaTown"))
-		}
+					fmt.Println(data)
+				}
+
+			} else {
+				fmt.Println(resp.Status)
+				w.Write([]byte("Grosso guaio a ChinaTown"))
+			}
+		} */
 	}
 }
