@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/axamon/reperibili"
@@ -12,7 +13,19 @@ import (
 	"github.com/hpcloud/tail"
 )
 
+const (
+	version = "1.0"
+)
+
+//Version mostra la versione attuale del software
+func Version() {
+	fmt.Println(version)
+}
+
+//variabile che punta al file log di Nagios
 var nagioslog = flag.String("nagioslog", "/var/log/nagios/nagios.log", "Nagios file di log")
+
+//variabile per recuperare lo storage della reperibilità
 var reperibilita = flag.String("reperibilita", "$GOPATH/src/github.com/axamon/sauron/sauron/reperibilita.csv", "Nagios file di log")
 
 func main() {
@@ -37,7 +50,9 @@ func main() {
 	}
 	//Per ogni nuova linea nel file
 	for line := range t.Lines {
-		//fmt.Println(line.Text)
+
+		//fmt.Println(line.Text) //per debug
+
 		//Se la linea è di notifica la analizza se no passa oltre
 		//notificabool := strings.Contains(line.Text, "NOTIFICATION")
 		switch {
@@ -49,18 +64,27 @@ func main() {
 
 			TO := reperibile.Cellulare
 			NOME := reperibile.Nome
+			COGNOME := reperibile.Cognome
 			//debug
-			fmt.Println(TO, NOME)
+			fmt.Println(TO, NOME, COGNOME)
 
-			reperibili.Chiamareperibile(TO, NOME)
+			sid, err := reperibili.Chiamareperibile(TO, NOME, COGNOME)
+			if err != nil {
+				fmt.Println("Errore", err.Error())
+			}
+			fmt.Println(sid)
 
 			//esce dallo switch
 			break
 
 		case strings.Contains(line.Text, "NOTIFICATION") && strings.Contains(line.Text, "OK"):
-			//Se ok allora manda solo sms niente chiamata
-			fmt.Println("ricevuto OK")
-			reperibile, _ := reperibili.Reperibiliperpiattaforma2("CDN", *reperibilita)
+			//Se ok allora manda solo sms senza chiamata
+			fmt.Println("ricevuto OK") //per debug
+
+			reperibile, err := reperibili.Reperibiliperpiattaforma2("CDN", *reperibilita)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err.Error())
+			}
 
 			TO := reperibile.Cellulare
 			pezzi := strings.Split(line.Text, ";")
