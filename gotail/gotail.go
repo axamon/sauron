@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/axamon/reperibili"
+	"github.com/axamon/sauron/cercasid"
 
 	sms "github.com/axamon/sms"
 
@@ -14,7 +16,7 @@ import (
 )
 
 const (
-	version = "1.0"
+	version = "1.1"
 )
 
 //Version mostra la versione attuale del software
@@ -30,6 +32,7 @@ var reperibilita = flag.String("reperibilita", "$GOPATH/src/github.com/axamon/sa
 
 func main() {
 	flag.Parse()
+	Version()
 
 	//Inizia il tail dalla fine del file senza leggerlo dall'inizio
 	var fine tail.SeekInfo
@@ -68,11 +71,58 @@ func main() {
 			//debug
 			fmt.Println(TO, NOME, COGNOME)
 
-			sid, err := reperibili.Chiamareperibile(TO, NOME, COGNOME)
+			/* sid, err := reperibili.Chiamareperibile(TO, NOME, COGNOME)
 			if err != nil {
 				fmt.Println("Errore", err.Error())
 			}
 			fmt.Println(sid)
+			*/
+
+			//Cerca di chiamare il reperibile per 3 volte
+			go func() {
+				for n := 1; n < 5; n++ {
+					//chiamo per la n volta
+					fmt.Println(n) //debug
+					sid, err := reperibili.Chiamareperibile(TO, NOME, COGNOME)
+					if err != nil {
+						fmt.Println("Errore", err.Error())
+					}
+					fmt.Println(sid)
+					//attendi 60 secondi
+					time.Sleep(90 * time.Second)
+					//e verifica lo  status del sid
+					status := cercasid.Retrievestatus(sid)
+					//se lo status è completed esce dal loop
+					if status == "completed" {
+						fmt.Println("Reperibile", NOME, COGNOME, "contattattato con successo al", TO, "alle", time.Now())
+						return
+					}
+					//se lo status è diverso da completed
+					//Bisogna scalare il problema
+					fmt.Println("ho provato", n, " volte e non sono riuscito a contattare il reperibile", NOME, COGNOME, TO, status)
+					if n == 4 {
+						for m := 1; m < 10; m++ {
+							//TODO: Cambiare funzione e mettere una specifica per il servicedesk
+							fmt.Println("Chiamo il numero di escalation")
+							sid, err := reperibili.Chiamareperibile("NUMEEO", "UTENTE", "SERVICEDESK")
+							if err != nil {
+								fmt.Println("Errore", err.Error())
+							}
+							fmt.Println(sid)
+							time.Sleep(80 * time.Second)
+							status := cercasid.Retrievestatus(sid)
+							if status == "completed" {
+								fmt.Println("ServiceDesk contattattato con successo al alle", time.Now())
+								return
+							}
+							fmt.Println("SD non risponde tentativo", m, time.Now())
+						}
+						fmt.Println("Molto grave! Neanche il SD sono riuscito a chiamare!", time.Now())
+						return
+					}
+
+				}
+			}()
 
 			//esce dallo switch
 			break
